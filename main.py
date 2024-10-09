@@ -1,6 +1,7 @@
 import requests
 import platform
 import csv
+import os
 import json
 
 package = requests
@@ -17,6 +18,8 @@ params = {
 #&md5=h951XP1TMJ9boDWyDS2rSg&expires=1725695474&user_id=79838608
 url = "https://api.nexusmods.com/"
 game_name = "baldursgate3"
+#mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
+mods_dir = "./"
 
 """mod_lists = open("mod_list.csv", "r")
 spamreader = csv.reader(mod_lists, delimeter=', ')
@@ -41,6 +44,7 @@ json format
 """
 
 def read_mods():
+    global mod_list
     with open("./download.json", 'r') as modfile:
         mod_list = json.load(modfile)
         return True
@@ -55,7 +59,14 @@ def write_mods():
     return False
 
 def clean_dir():
-    pass
+    counter = 0
+    dir_list = os.listdir(mods_dir)
+    for filename in dir_list:
+        if "info" in filename and filename.endswith(".json"):
+            os.remove(mods_dir+"/"+filename)
+            counter+=1
+
+    return counter
 
 
 def get_mod_details(id):
