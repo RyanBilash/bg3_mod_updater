@@ -85,7 +85,7 @@ def update_mods():
     for mod_id in mod_list.keys():
         response = get_mod_details(id)
         #update all mods based on if there is a newer version
-        if response["updated_timestamp"] > mod_list[mod_id]["timestamp"]:
+        if "timestamp" in mod_list[mod_id] or response["updated_timestamp"] > mod_list[mod_id]["timestamp"]:
             updated = response["updated_timestamp"]
             dst_file = "./"+mod_id+".zip"
 
