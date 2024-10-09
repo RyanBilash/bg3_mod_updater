@@ -1,3 +1,4 @@
+import sys
 import requests
 import platform
 import os
@@ -5,11 +6,33 @@ import json
 import zipfile
 import io
 import atexit
+import configparser
+import config_gen
+
+
+config_path = './config.ini'
+user_key = "k9zjCGLfWZgscJrJrc0O8eUnrl8tMyXgVCXnwdQ2fkMosr0=--xYdCouD24lqgueoK--RVWNhE0H2DN/7uK+j1bmkA=="
+mods_file = './download.json'
+#mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
+mods_dir = "./"
+
+def get_config():
+    global user_key, mods_file, mods_dir
+    if os.path.isfile(config_path):
+        config = configparser.ConfigParser()
+        config.read(config_path)
+        user_key = config['DEFAULT']['apikey']
+        mods_file = config['DEFAULT']['mods_file']
+        #mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
+    else:
+        config_gen.generate()
+        sys.exit()
+
 
 package = requests
 name = "bg3-updater"
 ver=0.3
-user_key = "k9zjCGLfWZgscJrJrc0O8eUnrl8tMyXgVCXnwdQ2fkMosr0=--xYdCouD24lqgueoK--RVWNhE0H2DN/7uK+j1bmkA=="
+
 agent_string = "{}/{} -- {} -- {}/{}".format(name, ver, platform.platform(), package.__title__, package.__version__)
 
 params = {
@@ -18,28 +41,13 @@ params = {
     }
 url = "https://api.nexusmods.com/"
 game_name = "baldursgate3"
-#mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
-mods_dir = "./"
 
 mod_list = {}
 
-"""
-json format
-{
-    /mod_id/{
-        name
-        update timestamp
-        ???
-    }
- 
-}
-
-
-"""
 
 def read_mods():
     global mod_list
-    with open("./download.json", 'r') as modfile:
+    with open(mods_file, 'r') as modfile:
         mod_list = json.load(modfile)
         return True
 
@@ -47,7 +55,7 @@ def read_mods():
 
 def write_mods():
     if mod_list:
-        with open("./download.json", 'w') as modfile:
+        with open(mods_file, 'w') as modfile:
             json.dump(mod_list, modfile)
             return True
 
@@ -56,6 +64,7 @@ def write_mods():
 def clean_dir():
     counter = 0
     dir_list = os.listdir(mods_dir)
+    #delete all the 'info' files extracted to the out directory
     for filename in dir_list:
         if "info" in filename and filename.endswith(".json"):
             os.remove(mods_dir+"/"+filename)
@@ -113,8 +122,8 @@ i = 0
 #get_mod_files(213)
 
 if __name__ == "__main__":
-
+    get_config()
     pass
-    #atexit.register(write_mods)
-    #read_mods()
-    #update_mods()
+    atexit.register(write_mods)
+    read_mods()
+    update_mods()
