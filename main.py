@@ -40,6 +40,24 @@ json format
 
 """
 
+def read_mods():
+    with open("./download.json", 'r') as modfile:
+        mod_list = json.load(modfile)
+        return True
+
+    return False
+
+def write_mods():
+    with open("./download.json", 'w') as modfile:
+        json.dump(mod_list, modfile)
+        return True
+
+    return False
+
+def clean_dir():
+    pass
+
+
 def get_mod_details(id):
     response = package.get(url=(url + "v1/games/{}/mods/{}.json").format(game_name,id), headers=params)
     resp_text = json.loads(response.text)
@@ -66,8 +84,8 @@ def update_mods():
 id=87
 #temp = package.get(url=(url + "v1/games/{}/mods/{}/files/{}/download_link.json").format(game_name, id, get_mod_files(87)["file_id"]), headers=params)
 
-temp = package.get(url="https://api.nexusmods.com/v1/games/baldursgate3/mods/87/files/36127/download_link.json?key=k9zjCGLfWZgscJrJrc0O8eUnrl8tMyXgVCXnwdQ2fkMosr0=--xYdCouD24lqgueoK--RVWNhE0H2DN/7uK+j1bmkA==&expires=1725696093", headers=params)
+#temp = package.get(url="https://api.nexusmods.com/v1/games/baldursgate3/mods/87/files/36127/download_link.json?key=k9zjCGLfWZgscJrJrc0O8eUnrl8tMyXgVCXnwdQ2fkMosr0=--xYdCouD24lqgueoK--RVWNhE0H2DN/7uK+j1bmkA==&expires=1725696093", headers=params)
 
 i = 0
-get_mod_details(213)
+get_mod_files(213)
 
