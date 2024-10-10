@@ -9,7 +9,7 @@ import atexit
 import configparser
 import config_gen
 
-
+package=requests
 config_path = './config.ini'
 user_key = ''
 mods_file = './download.json'
