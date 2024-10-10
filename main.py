@@ -100,6 +100,7 @@ def update_mods():
             dst_file = "./" + mod_id + ".zip"
 
             file_to_download = get_mod_files(mod_id)
+            pass
             """
             need to add in request here to go from the file_to_download to the download link
             files/[id]/download_link.json
