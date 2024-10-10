@@ -11,10 +11,10 @@ import config_gen
 
 
 config_path = './config.ini'
-user_key = "k9zjCGLfWZgscJrJrc0O8eUnrl8tMyXgVCXnwdQ2fkMosr0=--xYdCouD24lqgueoK--RVWNhE0H2DN/7uK+j1bmkA=="
+user_key = ''
 mods_file = './download.json'
 #mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
-mods_dir = "./"
+mods_dir = './'
 
 def get_config():
     global user_key, mods_file, mods_dir
@@ -25,6 +25,8 @@ def get_config():
         mods_file = config['DEFAULT']['mods_file']
         #mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
     else:
+        # just want to generate the config and probably prompt the user that they need to put in the api key
+        # as the config doesn't have one by default, so there's no need to continue running
         config_gen.generate()
         sys.exit()
 
