@@ -31,15 +31,8 @@ def get_config():
         sys.exit()
 
 
-package = requests
-name = "bg3-updater"
-ver=0.3
-
-agent_string = "{}/{} -- {} -- {}/{}".format(name, ver, platform.platform(), package.__title__, package.__version__)
-
 params = {
         "apikey":user_key,
-        #"User-Agent":agent_string,
     }
 url = "https://api.nexusmods.com/"
 game_name = "baldursgate3"
