@@ -9,12 +9,13 @@ import atexit
 import configparser
 import config_gen
 
-package=requests
+package = requests
 config_path = './config.ini'
 user_key = ''
 mods_file = './download.json'
 #mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
 mods_dir = './'
+
 
 def get_config():
     global user_key, mods_file, mods_dir
@@ -32,8 +33,8 @@ def get_config():
 
 
 params = {
-        "apikey":user_key,
-    }
+    "apikey": user_key,
+}
 url = "https://api.nexusmods.com/"
 game_name = "baldursgate3"
 
@@ -48,6 +49,7 @@ def read_mods():
 
     return False
 
+
 def write_mods():
     if mod_list:
         with open(mods_file, 'w') as modfile:
@@ -56,25 +58,28 @@ def write_mods():
 
     return False
 
+
 def clean_dir():
     counter = 0
     dir_list = os.listdir(mods_dir)
     #delete all the 'info' files extracted to the out directory
     for filename in dir_list:
         if "info" in filename and filename.endswith(".json"):
-            os.remove(mods_dir+"/"+filename)
-            counter+=1
+            os.remove(mods_dir + "/" + filename)
+            counter += 1
 
     return counter
 
 
 def get_mod_details(id):
-    response = package.get(url=(url + "v1/games/{}/mods/{}.json").format(game_name,id), headers=params)
+    response = package.get(url=(url + "v1/games/{}/mods/{}.json").format(game_name, id), headers=params)
     resp_text = json.loads(response.text)
     return resp_text
 
+
 def get_mod_files(id):
-    response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id), headers=params)
+    response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id),
+                           headers=params)
     resp_file = json.loads(response.text)
     main_file = resp_file["files"][0]
     if len(resp_file["files"]) > 1:
@@ -85,20 +90,21 @@ def get_mod_files(id):
                 break
     return main_file
 
+
 def update_mods():
     for mod_id in mod_list.keys():
         response = get_mod_details(id)
         #update all mods based on if there is a newer version
         if "timestamp" in mod_list[mod_id] or response["updated_timestamp"] > mod_list[mod_id]["timestamp"]:
             updated = response["updated_timestamp"]
-            dst_file = "./"+mod_id+".zip"
+            dst_file = "./" + mod_id + ".zip"
 
             file_to_download = get_mod_files(mod_id)
             """
             need to add in request here to go from the file_to_download to the download link
             files/[id]/download_link.json
             """
-            main_url=''
+            main_url = ''
             response = requests.get(main_url, headers=params)
             if response.ok:
                 #convert response to zip and extract zip to the mods folder
@@ -107,8 +113,7 @@ def update_mods():
                 mod_list[mod_id]["timestamp"] = updated
 
 
-
-id=87
+id = 87
 #temp = package.get(url=(url + "v1/games/{}/mods/{}/files/{}/download_link.json").format(game_name, id, get_mod_files(87)["file_id"]), headers=params)
 
 #temp = package.get(url="https://api.nexusmods.com/v1/games/baldursgate3/mods/87/files/36127/download_link.json?key=k9zjCGLfWZgscJrJrc0O8eUnrl8tMyXgVCXnwdQ2fkMosr0=--xYdCouD24lqgueoK--RVWNhE0H2DN/7uK+j1bmkA==&expires=1725696093", headers=params)
