@@ -10,7 +10,7 @@ import config_gen
 
 package = requests
 config_path = './config.ini'
-user_key = ''
+user_key = '+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g=='
 mods_file = './download.json'
 #mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
 mods_dir = './'
@@ -29,7 +29,7 @@ def get_config():
     if os.path.isfile(config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
-        user_key = config['DEFAULT']['apikey']
+        user_key = "+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g==" #config['DEFAULT']['apikey']
         mods_file = config['DEFAULT']['mods_file']
         #mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
     else:
@@ -57,6 +57,7 @@ def read_mods():
     global mod_list
     with open(mods_file, 'r') as modfile:
         mod_list = json.load(modfile)
+        # TODO: verify keys in json
         return True
 
     return False
@@ -106,52 +107,57 @@ def get_mod_details(id):
     return resp_text
 
 
-def get_mod_files(id):
+def get_mod_file(id, file_name=""):
     """
     Requests details on all the mod files, and only return the primary file
 
     :param id: int or str, mod id for a specific mod
     :return: details of the main mod file, as a json
     """
-    response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id),
-                           headers=params)
-    resp_file = json.loads(response.text)
-    main_file = resp_file["files"][0]
-    if len(resp_file["files"]) > 1:
-        for file in resp_file["files"]:
-            #loop through all files to find primary if the first one is not primary
-            if file["is_primary"]:
+
+    main_file = None
+
+    if file_name is "":
+        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id),
+                               headers=params)
+        resp_file = json.loads(response.text)
+        main_file = resp_file["files"][0]
+        if len(resp_file["files"]) > 1:
+            for file in resp_file["files"]:
+                #loop through all files to find primary if the first one is not primary
+                if file["is_primary"]:
+                    main_file = file
+                    break
+    else:
+        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main,optional").format(game_name, id),
+                               headers=params)
+        resp_file = json.loads(response.text)
+        for file in resp_file['files']:
+            if file['name'] == file_name:
                 main_file = file
                 break
+
     return main_file
 
 
 def update_mods():
     for mod_id in mod_list.keys():
-        response = get_mod_details(id)
-        #update all mods based on if there is a newer version
-        if "timestamp" in mod_list[mod_id] or response["updated_timestamp"] > mod_list[mod_id]["timestamp"]:
-            updated = response["updated_timestamp"]
-            dst_file = "./" + mod_id + ".zip"
+        for i in len(mod_list[mod_id]["file_names"]):
+            file_name = mod_list[mod_id]["file_names"][i]
+            mod_file = get_mod_file(mod_id, file_name)
+            if mod_file["uploaded_timestamp"] > mod_list[mod_id]["timestamps"][i]:
+                updated = mod_file['uploaded_timestamp']
+                #download here
+                pass
+                mod_list[mod_id]['timestamps'][i] = updated
 
-            file_to_download = get_mod_files(mod_id)
-            pass
-            """
-            need to add in request here to go from the file_to_download to the download link
-            files/[id]/download_link.json
-            """
-            main_url = ''
-            response = requests.get(main_url, headers=params)
-            if response.ok:
-                #convert response to zip and extract zip to the mods folder
-                zipped = zipfile.ZipFile(io.BytesIO(response.content))
-                zipped.extractall(mods_dir)
-                mod_list[mod_id]["timestamp"] = updated
 
 
 
 if __name__ == "__main__":
     get_config()
+    read_mods()
+    get_mod_file(213)
     pass
     # Guarantee any downloaded updates are properly reflected, even on unexpected exit
     atexit.register(write_mods)
