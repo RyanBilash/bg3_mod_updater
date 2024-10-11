@@ -1,6 +1,5 @@
 import sys
 import requests
-import platform
 import os
 import json
 import zipfile
