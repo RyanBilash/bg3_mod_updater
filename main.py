@@ -18,6 +18,14 @@ mods_dir = './'
 
 
 def get_config():
+    """
+    Loads in config options of user_key, mods_file, and mods_dir from the designated config file
+    user_key: api key
+    mods_file: path to the file where mod information can be found
+    mods_dir: path to the bg3 mods directory
+
+    :return: None
+    """
     global user_key, mods_file, mods_dir
     if os.path.isfile(config_path):
         config = configparser.ConfigParser()
@@ -42,6 +50,11 @@ mod_list = {}
 
 
 def read_mods():
+    """
+    Loads the list of mods and their associated information in from the designated mods_file
+
+    :return: True if the mods were properly loaded in, False otherwise
+    """
     global mod_list
     with open(mods_file, 'r') as modfile:
         mod_list = json.load(modfile)
@@ -51,6 +64,11 @@ def read_mods():
 
 
 def write_mods():
+    """
+    Writes the list of mods and their associated information into the designated mods_file
+
+    :return: True if the file was successfully written to, False otherwise
+    """
     if mod_list:
         with open(mods_file, 'w') as modfile:
             json.dump(mod_list, modfile)
@@ -60,6 +78,12 @@ def write_mods():
 
 
 def clean_dir():
+    """
+    Deletes all info.json files extracted to the mods directory.
+    The looping here can be redundant, depending on if the extracted files overwrite instead of stacking like (1)
+
+    :return: int, the number of files deleted
+    """
     counter = 0
     dir_list = os.listdir(mods_dir)
     #delete all the 'info' files extracted to the out directory
@@ -72,12 +96,24 @@ def clean_dir():
 
 
 def get_mod_details(id):
+    """
+    Requests mod details on the mod with the given id
+
+    :param id: int or str, mod id for a specific mod
+    :return: full response details, as a json
+    """
     response = package.get(url=(url + "v1/games/{}/mods/{}.json").format(game_name, id), headers=params)
     resp_text = json.loads(response.text)
     return resp_text
 
 
 def get_mod_files(id):
+    """
+    Requests details on all the mod files, and only return the primary file
+
+    :param id: int or str, mod id for a specific mod
+    :return: details of the main mod file, as a json
+    """
     response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id),
                            headers=params)
     resp_file = json.loads(response.text)
@@ -118,6 +154,7 @@ def update_mods():
 if __name__ == "__main__":
     get_config()
     pass
+    # Guarantee any downloaded updates are properly reflected, even on unexpected exit
     atexit.register(write_mods)
     read_mods()
     update_mods()
