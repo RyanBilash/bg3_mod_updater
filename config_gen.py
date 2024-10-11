@@ -2,6 +2,14 @@ import configparser
 import os
 
 def generate():
+    """
+    Generates a config file, containing default information for mods_file, apikey, and mods_dir
+    mods_file is defaulted to ./download.json
+    apikey is left empty, and requires the user to input theirs manually
+    mods_dir is located based on the default bg3 mods folder
+
+    :return: None
+    """
     config = configparser.ConfigParser()
     config['DEFAULT'] = {
         'Mods_File': './download.json',
