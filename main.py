@@ -10,10 +10,10 @@ import config_gen
 
 package = requests
 config_path = './config.ini'
-user_key = '+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g=='
+user_key=''
 mods_file = './download.json'
-mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
-#mods_dir = './'
+#mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
+mods_dir = './'
 
 
 def get_config():
@@ -160,12 +160,9 @@ def update_mods():
 
 
 if __name__ == "__main__":
+    global params
     get_config()
+    params['apikey'] = user_key
     read_mods()
+    atexit.register(write_mods)
     update_mods()
-    #get_mod_file(213)
-    pass
-    # Guarantee any downloaded updates are properly reflected, even on unexpected exit
-    #atexit.register(write_mods)
-    #read_mods()
-    #update_mods()
