@@ -1,2 +1,3 @@
 info.json
 *.pak
+__pycache__/
