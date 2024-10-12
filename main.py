@@ -12,8 +12,8 @@ package = requests
 config_path = './config.ini'
 user_key = '+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g=='
 mods_file = './download.json'
-#mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
-mods_dir = './'
+mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
+#mods_dir = './'
 
 
 def get_config():
@@ -117,7 +117,7 @@ def get_mod_file(id, file_name=""):
 
     main_file = None
 
-    if file_name is "":
+    if file_name == "":
         response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id),
                                headers=params)
         resp_file = json.loads(response.text)
@@ -142,13 +142,18 @@ def get_mod_file(id, file_name=""):
 
 def update_mods():
     for mod_id in mod_list.keys():
-        for i in len(mod_list[mod_id]["file_names"]):
+        for i in range(len(mod_list[mod_id]["file_names"])):
             file_name = mod_list[mod_id]["file_names"][i]
             mod_file = get_mod_file(mod_id, file_name)
             if mod_file["uploaded_timestamp"] > mod_list[mod_id]["timestamps"][i]:
                 updated = mod_file['uploaded_timestamp']
-                #download here
-                pass
+                response = package.get(url=(url+"v1/games/{}/mods/{}/files/{}/download_link.json").format(game_name, mod_id, mod_file['id'][0]), headers=params)
+                print("wahoo")
+                links = json.loads(response.text)
+                beepboop = requests.get(links[0]['URI'], headers=params)
+                if response.ok:
+                    zipped = zipfile.ZipFile(io.BytesIO(beepboop.content))
+                    zipped.extractall(mods_dir)
                 mod_list[mod_id]['timestamps'][i] = updated
 
 
@@ -157,9 +162,10 @@ def update_mods():
 if __name__ == "__main__":
     get_config()
     read_mods()
-    get_mod_file(213)
+    update_mods()
+    #get_mod_file(213)
     pass
     # Guarantee any downloaded updates are properly reflected, even on unexpected exit
-    atexit.register(write_mods)
-    read_mods()
-    update_mods()
+    #atexit.register(write_mods)
+    #read_mods()
+    #update_mods()
