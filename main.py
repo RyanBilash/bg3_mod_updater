@@ -147,6 +147,13 @@ def get_mod_file(mod_id, file_name=""):
 
 
 def update_mods():
+    """
+    Updates all mods in the mod_list, by downloading each file for each mod if they have had an update since the last
+    update specified in the mod_list
+    This functionality requires a premium Nexus account
+
+    :return: None
+    """
     for mod_id in mod_list.keys():
         for i in range(len(mod_list[mod_id]["file_names"])):
             file_name = mod_list[mod_id]["file_names"][i]
