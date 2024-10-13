@@ -117,6 +117,7 @@ def get_mod_file(mod_id, file_name=""):
     Requests details on all the mod files, and only return the primary file
 
     :param mod_id: int or str, mod id for a specific mod
+    :param file_name: str name of the mod file to obtain; shown in the mod files tab, the name listed for the mod file
     :return: details of the main mod file, as a json
     """
 
