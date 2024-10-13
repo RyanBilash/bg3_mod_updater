@@ -57,9 +57,12 @@ def read_mods():
     :return: True if the mods were properly loaded in, False otherwise
     """
     global mod_list
+    proper_keys = set([])
     with open(mods_file, 'r') as modfile:
         mod_list = json.load(modfile)
-        # TODO: verify keys in json
+        for key in mod_list.keys:
+            if set(mod_list[key].keys) != proper_keys:
+                return False
         return True
 
     return False
@@ -162,7 +165,8 @@ def update_mods():
 
 if __name__ == "__main__":
     get_config()
-    read_mods()
+    if not read_mods():
+        sys.exit()
     atexit.register(write_mods)
 
     update_mods()
