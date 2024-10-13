@@ -14,6 +14,9 @@ user_key=''
 mods_file = './download.json'
 #mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
 mods_dir = './'
+params = {
+    "apikey": user_key,
+}
 
 
 def get_config():
@@ -25,11 +28,12 @@ def get_config():
 
     :return: None
     """
-    global user_key, mods_file, mods_dir
+    global user_key, mods_file, mods_dirm, params
     if os.path.isfile(config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
         user_key = "+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g==" #config['DEFAULT']['apikey']
+        params['apikey'] = user_key
         mods_file = config['DEFAULT']['mods_file']
         #mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
     else:
@@ -39,9 +43,7 @@ def get_config():
         sys.exit()
 
 
-params = {
-    "apikey": user_key,
-}
+
 url = "https://api.nexusmods.com/"
 game_name = "baldursgate3"
 
@@ -148,11 +150,10 @@ def update_mods():
             if mod_file["uploaded_timestamp"] > mod_list[mod_id]["timestamps"][i]:
                 updated = mod_file['uploaded_timestamp']
                 response = package.get(url=(url+"v1/games/{}/mods/{}/files/{}/download_link.json").format(game_name, mod_id, mod_file['id'][0]), headers=params)
-                print("wahoo")
                 links = json.loads(response.text)
-                beepboop = requests.get(links[0]['URI'], headers=params)
+                file_request = requests.get(links[0]['URI'], headers=params)
                 if response.ok:
-                    zipped = zipfile.ZipFile(io.BytesIO(beepboop.content))
+                    zipped = zipfile.ZipFile(io.BytesIO(file_request.content))
                     zipped.extractall(mods_dir)
                 mod_list[mod_id]['timestamps'][i] = updated
 
@@ -160,9 +161,8 @@ def update_mods():
 
 
 if __name__ == "__main__":
-    global params
     get_config()
-    params['apikey'] = user_key
     read_mods()
     atexit.register(write_mods)
+
     update_mods()
