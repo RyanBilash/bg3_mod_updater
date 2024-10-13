@@ -100,30 +100,30 @@ def clean_dir():
     return counter
 
 
-def get_mod_details(id):
+def get_mod_details(mod_id):
     """
     Requests mod details on the mod with the given id
 
-    :param id: int or str, mod id for a specific mod
+    :param mod_id: int or str, mod id for a specific mod
     :return: full response details, as a json
     """
-    response = package.get(url=(url + "v1/games/{}/mods/{}.json").format(game_name, id), headers=params)
+    response = package.get(url=(url + "v1/games/{}/mods/{}.json").format(game_name, mod_id), headers=params)
     resp_text = json.loads(response.text)
     return resp_text
 
 
-def get_mod_file(id, file_name=""):
+def get_mod_file(mod_id, file_name=""):
     """
     Requests details on all the mod files, and only return the primary file
 
-    :param id: int or str, mod id for a specific mod
+    :param mod_id: int or str, mod id for a specific mod
     :return: details of the main mod file, as a json
     """
 
     main_file = None
 
     if file_name == "":
-        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, id),
+        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main").format(game_name, mod_id),
                                headers=params)
         resp_file = json.loads(response.text)
         main_file = resp_file["files"][0]
@@ -134,7 +134,7 @@ def get_mod_file(id, file_name=""):
                     main_file = file
                     break
     else:
-        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main,optional").format(game_name, id),
+        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main,optional").format(game_name, mod_id),
                                headers=params)
         resp_file = json.loads(response.text)
         for file in resp_file['files']:
