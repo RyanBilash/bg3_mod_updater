@@ -57,11 +57,11 @@ def read_mods():
     :return: True if the mods were properly loaded in, False otherwise
     """
     global mod_list
-    proper_keys = set([])
+    proper_keys = {'name', 'file_names', 'timestamps'}
     with open(mods_file, 'r') as modfile:
         mod_list = json.load(modfile)
-        for key in mod_list.keys:
-            if set(mod_list[key].keys) != proper_keys:
+        for key in mod_list:
+            if set(mod_list[key].keys()) != proper_keys:
                 mod_list = {}
                 return False
             if len(mod_list[key]['timestamps']) != len(mod_list[key]['file_names']):
