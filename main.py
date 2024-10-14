@@ -62,6 +62,10 @@ def read_mods():
         mod_list = json.load(modfile)
         for key in mod_list.keys:
             if set(mod_list[key].keys) != proper_keys:
+                mod_list = {}
+                return False
+            if len(mod_list[key]['timestamps']) != len(mod_list[key]['file_names']):
+                mod_list = {}
                 return False
         return True
 
