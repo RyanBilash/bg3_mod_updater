@@ -32,7 +32,7 @@ def get_config():
     if os.path.isfile(config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
-        user_key = "+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g=="  # config['DEFAULT']['apikey']
+        user_key = config['DEFAULT']['apikey']
         params['apikey'] = user_key
         mods_file = config['DEFAULT']['mods_file']
         # mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
