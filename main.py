@@ -10,9 +10,9 @@ import config_gen
 
 package = requests
 config_path = './config.ini'
-user_key=''
+user_key = ''
 mods_file = './download.json'
-#mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
+# mods_dir = os.path.expandvars(r"%LOCALAPPDATA%\Larian Studios\Baldur's Gate 3\Mods")
 mods_dir = './'
 params = {
     "apikey": user_key,
@@ -28,20 +28,19 @@ def get_config():
 
     :return: None
     """
-    global user_key, mods_file, mods_dirm, params
+    global user_key, mods_file, mods_dir, params
     if os.path.isfile(config_path):
         config = configparser.ConfigParser()
         config.read(config_path)
-        user_key = "+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g==" #config['DEFAULT']['apikey']
+        user_key = "+Y2XcI7UwxfEqNi8JkS5aXIuq1soJ+GXyB6cOM0QKB4ZWA==--Su+aUiuDq4+4gv91--O0DbUrtRCyDf6/HgkLfp6g=="  # config['DEFAULT']['apikey']
         params['apikey'] = user_key
         mods_file = config['DEFAULT']['mods_file']
-        #mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
+        # mods_dir = config['DEFAULT']['mods_dir'] #TODO: uncomment this when in beta testing
     else:
         # just want to generate the config and probably prompt the user that they need to put in the api key
         # as the config doesn't have one by default, so there's no need to continue running
         config_gen.generate()
         sys.exit()
-
 
 
 url = "https://api.nexusmods.com/"
@@ -95,7 +94,8 @@ def clean_dir():
     """
     counter = 0
     dir_list = os.listdir(mods_dir)
-    #delete all the 'info' files extracted to the out directory
+    # delete all the 'info' files extracted to the out directory
+    # this can probably just be replaced with something like os.remove(...+'info.json') because of overwriting
     for filename in dir_list:
         if "info" in filename and filename.endswith(".json"):
             os.remove(mods_dir + "/" + filename)
@@ -134,13 +134,14 @@ def get_mod_file(mod_id, file_name=""):
         main_file = resp_file["files"][0]
         if len(resp_file["files"]) > 1:
             for file in resp_file["files"]:
-                #loop through all files to find primary if the first one is not primary
+                # loop through all files to find primary if the first one is not primary
                 if file["is_primary"]:
                     main_file = file
                     break
     else:
-        response = package.get(url=(url + "v1/games/{}/mods/{}/files.json?category=main,optional").format(game_name, mod_id),
-                               headers=params)
+        response = package.get(
+            url=(url + "v1/games/{}/mods/{}/files.json?category=main,optional").format(game_name, mod_id),
+            headers=params)
         resp_file = json.loads(response.text)
         for file in resp_file['files']:
             if file['name'] == file_name:
@@ -164,15 +165,17 @@ def update_mods():
             mod_file = get_mod_file(mod_id, file_name)
             if mod_file["uploaded_timestamp"] > mod_list[mod_id]["timestamps"][i]:
                 updated = mod_file['uploaded_timestamp']
-                response = package.get(url=(url+"v1/games/{}/mods/{}/files/{}/download_link.json").format(game_name, mod_id, mod_file['id'][0]), headers=params)
+                response = package.get(
+                    url=(url + "v1/games/{}/mods/{}/files/{}/download_link.json").format(game_name, mod_id,
+                                                                                         mod_file['id'][0]),
+                    headers=params)
                 links = json.loads(response.text)
+                # links contains multiple download mirrors, so a future update could include multiple threads downloading from multiple mirrors
                 file_request = requests.get(links[0]['URI'], headers=params)
                 if response.ok:
                     zipped = zipfile.ZipFile(io.BytesIO(file_request.content))
                     zipped.extractall(mods_dir)
                 mod_list[mod_id]['timestamps'][i] = updated
-
-
 
 
 if __name__ == "__main__":
